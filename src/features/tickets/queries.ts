@@ -6,7 +6,20 @@ import type {
   TicketAttachment,
   TicketMessage,
   TicketWithRelations,
+  User,
 } from "@/types/domain";
+
+/** Placeholder assignee for clients: RLS only lets them read the display name (via RPC), not the full profile. */
+function nameOnlyAssignee(id: string, fullName: string): User {
+  return {
+    id,
+    fullName,
+    email: "",
+    role: "agent",
+    isActive: true,
+    createdAt: "",
+  };
+}
 
 /**
  * Lists all tickets the current user can see (scoped by RLS), with their
@@ -28,14 +41,30 @@ export async function listTickets(): Promise<TicketWithRelations[]> {
   const clientById = new Map((clients.data ?? []).map((c) => [c.id, mapClient(c)]));
   const userById = new Map((profiles.data ?? []).map((p) => [p.id, mapUser(p)]));
 
+  // Cliente não enxerga o perfil do atendente por RLS (profiles_select); a
+  // RPC (SECURITY DEFINER) devolve só o nome de exibição do responsável nos
+  // tickets que o próprio cliente já pode acessar (mesmo padrão do nome do
+  // autor da mensagem).
+  const needsNameFallback = (tickets.data ?? []).some(
+    (t) => t.assignee_id && !userById.has(t.assignee_id),
+  );
+  const assigneeNameByTicket = new Map<string, string>();
+  if (needsNameFallback) {
+    const { data: names } = await supabase.rpc("ticket_assignee_names");
+    for (const n of names ?? []) assigneeNameByTicket.set(n.ticket_id, n.full_name);
+  }
+
   return (tickets.data ?? []).map((row) => {
     const ticket = mapTicket(row);
+    let assignee = ticket.assigneeId ? (userById.get(ticket.assigneeId) ?? null) : null;
+    if (!assignee && ticket.assigneeId) {
+      const name = assigneeNameByTicket.get(ticket.id);
+      if (name) assignee = nameOnlyAssignee(ticket.assigneeId, name);
+    }
     return {
       ...ticket,
       requester: clientById.get(ticket.requesterId)!,
-      assignee: ticket.assigneeId
-        ? userById.get(ticket.assigneeId) ?? null
-        : null,
+      assignee,
     };
   });
 }
@@ -62,10 +91,19 @@ export async function getTicket(
       : Promise.resolve({ data: null, error: null }),
   ]);
 
+  let assignee = assigneeRes.data ? mapUser(assigneeRes.data) : null;
+  if (!assignee && ticket.assigneeId) {
+    // Cliente sem RLS para o perfil do atendente: pega só o nome via RPC.
+    const { data: name } = await supabase.rpc("ticket_assignee_name", {
+      p_ticket_id: id,
+    });
+    if (name) assignee = nameOnlyAssignee(ticket.assigneeId, name);
+  }
+
   return {
     ...ticket,
     requester: requesterRes.data ? mapClient(requesterRes.data) : ({} as never),
-    assignee: assigneeRes.data ? mapUser(assigneeRes.data) : null,
+    assignee,
   };
 }
 

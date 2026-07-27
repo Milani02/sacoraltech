@@ -155,6 +155,14 @@ export interface Database {
         Args: { p_ticket_id: string };
         Returns: { id: string; full_name: string }[];
       };
+      ticket_assignee_name: {
+        Args: { p_ticket_id: string };
+        Returns: string | null;
+      };
+      ticket_assignee_names: {
+        Args: Record<string, never>;
+        Returns: { ticket_id: string; full_name: string }[];
+      };
     };
     Enums: {
       user_role: UserRole;
