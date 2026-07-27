@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -17,7 +18,6 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { BrandMark } from "@/components/layout/brand-mark";
 import { navItemsForRole } from "@/components/layout/nav-config";
 import { USER_ROLE } from "@/features/auth/roles";
 import { initials } from "@/lib/format";
@@ -31,17 +31,24 @@ export function AppSidebar({ user }: { user: User }) {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center px-2 py-2">
-          {/* Recolhida: mark compacto */}
-          <div className="hidden aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground group-data-[collapsible=icon]:flex">
-            <BrandMark />
-          </div>
-          {/* Expandida: nome por extenso (sem arquivo de logo da Oraltech ainda) */}
-          <div className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
-            <BrandMark className="size-6 text-sidebar-foreground" />
-            <span className="text-lg font-semibold tracking-tight text-sidebar-foreground">
-              SAC Oraltech
-            </span>
-          </div>
+          {/* Recolhida: só o ícone (já tem fundo navy próprio) */}
+          <Image
+            src="/icon-oraltech.png"
+            alt="Oraltech"
+            width={512}
+            height={400}
+            priority
+            className="hidden size-8 rounded-md object-contain group-data-[collapsible=icon]:flex"
+          />
+          {/* Expandida: logo branca (o ícone mantém as cores originais) */}
+          <Image
+            src="/logo-oraltech-branca.png"
+            alt="Oraltech"
+            width={1200}
+            height={262}
+            priority
+            className="h-12 w-auto object-contain group-data-[collapsible=icon]:hidden"
+          />
         </div>
       </SidebarHeader>
 

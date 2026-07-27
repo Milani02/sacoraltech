@@ -1,11 +1,10 @@
+import Image from "next/image";
+
 import { cn } from "@/lib/utils";
-import { BrandMark } from "@/components/layout/brand-mark";
 
 /**
- * Placeholder textual da marca (sem arquivo de logo da Oraltech ainda).
- * Troque por uma <Image> apontando para o PNG/SVG definitivo assim que a
- * identidade visual for enviada — mantém a mesma assinatura (onDark/className)
- * usada em login, registro e atualizar-senha.
+ * Logo da Oraltech (PNG transparente). A variante branca (só o texto vira
+ * branco — o ícone já tem fundo navy próprio) é usada sobre fundos escuros.
  */
 export function BrandLogo({
   onDark = false,
@@ -15,15 +14,16 @@ export function BrandLogo({
   className?: string;
 }) {
   return (
-    <div
+    <Image
+      src={onDark ? "/logo-oraltech-branca.png" : "/logo-oraltech.png"}
+      alt="Oraltech"
+      width={1200}
+      height={262}
+      priority
       className={cn(
-        "flex shrink-0 items-center gap-2 self-start",
-        onDark ? "text-white" : "text-foreground",
+        "h-auto w-[220px] shrink-0 self-start object-contain",
         className,
       )}
-    >
-      <BrandMark className="size-7" />
-      <span className="text-xl font-semibold tracking-tight">SAC Oraltech</span>
-    </div>
+    />
   );
 }
