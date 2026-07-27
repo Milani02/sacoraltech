@@ -13,7 +13,6 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { ClientDashboard } from "@/components/dashboard/client-dashboard";
 import { AgentDashboard } from "@/components/dashboard/agent-dashboard";
 import { StatusChart } from "@/components/dashboard/status-chart";
-import { SectorChart } from "@/components/dashboard/sector-chart";
 import { TicketsTable } from "@/components/tickets/tickets-table";
 import { listTickets } from "@/features/tickets/queries";
 import { getCurrentUser } from "@/features/auth/current-user";
@@ -54,15 +53,6 @@ export default async function DashboardPage() {
     count: tickets.filter((t) => t.status === s).length,
     color: `var(--${TICKET_STATUS[s].token})`,
   }));
-
-  const bySector = new Map<string, number>();
-  for (const t of tickets) {
-    bySector.set(t.sector.name, (bySector.get(t.sector.name) ?? 0) + 1);
-  }
-  const sectorData = [...bySector.entries()]
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 8);
 
   // "Meus tickets em aberto": atribuídos a mim + os novos ainda sem
   // responsável, para que todo ticket novo apareça aqui automaticamente.
@@ -113,26 +103,15 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Tickets por status</CardTitle>
-            <CardDescription>Distribuição atual da central.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <StatusChart data={statusData} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Tickets por setor</CardTitle>
-            <CardDescription>Volume por área responsável.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SectorChart data={sectorData} />
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Tickets por status</CardTitle>
+          <CardDescription>Distribuição atual da central.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <StatusChart data={statusData} />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

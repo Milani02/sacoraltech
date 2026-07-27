@@ -1,7 +1,6 @@
 import {
   LayoutDashboard,
   Ticket,
-  Building2,
   Users,
   Contact,
   type LucideIcon,
@@ -20,7 +19,6 @@ export const navItems: NavItem[] = [
   { title: "Painel geral", href: "/dashboard", icon: LayoutDashboard },
   { title: "Tickets", href: "/chamados", icon: Ticket },
   { title: "Clientes", href: "/clientes", icon: Contact, roles: ["admin", "agent"] },
-  { title: "Setores", href: "/setores", icon: Building2, roles: ["admin"] },
   { title: "Usuários", href: "/usuarios", icon: Users, roles: ["admin"] },
 ];
 

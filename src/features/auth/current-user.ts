@@ -27,7 +27,6 @@ export async function getCurrentUser(): Promise<User | null> {
     fullName: profile.full_name || user.email || "Usuário",
     email: profile.email,
     role: profile.role,
-    sectorId: profile.sector_id,
     isActive: profile.is_active,
     createdAt: profile.created_at,
   };

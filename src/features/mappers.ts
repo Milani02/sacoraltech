@@ -1,7 +1,6 @@
 import type { Database, TicketStatus as DbTicketStatus } from "@/types/database";
 import type {
   Client,
-  Sector,
   Ticket,
   TicketMessage,
   TicketStatus,
@@ -21,23 +20,12 @@ function normalizeStatus(status: DbTicketStatus): TicketStatus {
   return status;
 }
 
-export function mapSector(row: Tables["sectors"]["Row"]): Sector {
-  return {
-    id: row.id,
-    name: row.name,
-    description: row.description,
-    isActive: row.is_active,
-    createdAt: row.created_at,
-  };
-}
-
 export function mapUser(row: Tables["profiles"]["Row"]): User {
   return {
     id: row.id,
     fullName: row.full_name,
     email: row.email,
     role: row.role,
-    sectorId: row.sector_id,
     isActive: row.is_active,
     createdAt: row.created_at,
   };
@@ -61,7 +49,6 @@ export function mapTicket(row: Tables["tickets"]["Row"]): Ticket {
     title: row.title,
     description: row.description,
     requesterId: row.requester_id,
-    sectorId: row.sector_id,
     assigneeId: row.assignee_id,
     status: normalizeStatus(row.status),
     priority: row.priority,

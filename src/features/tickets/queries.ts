@@ -1,13 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
-import {
-  mapClient,
-  mapMessage,
-  mapSector,
-  mapTicket,
-  mapUser,
-} from "@/features/mappers";
+import { mapClient, mapMessage, mapTicket, mapUser } from "@/features/mappers";
 import type {
   TicketAttachment,
   TicketMessage,
@@ -16,24 +10,21 @@ import type {
 
 /**
  * Lists all tickets the current user can see (scoped by RLS), with their
- * requester, sector and assignee resolved. Ordered by most recently updated.
+ * requester and assignee resolved. Ordered by most recently updated.
  */
 export async function listTickets(): Promise<TicketWithRelations[]> {
   const supabase = await createClient();
 
-  const [tickets, sectors, clients, profiles] = await Promise.all([
+  const [tickets, clients, profiles] = await Promise.all([
     supabase.from("tickets").select("*").order("updated_at", { ascending: false }),
-    supabase.from("sectors").select("*"),
     supabase.from("clients").select("*"),
     supabase.from("profiles").select("*"),
   ]);
 
   if (tickets.error) throw tickets.error;
-  if (sectors.error) throw sectors.error;
   if (clients.error) throw clients.error;
   if (profiles.error) throw profiles.error;
 
-  const sectorById = new Map((sectors.data ?? []).map((s) => [s.id, mapSector(s)]));
   const clientById = new Map((clients.data ?? []).map((c) => [c.id, mapClient(c)]));
   const userById = new Map((profiles.data ?? []).map((p) => [p.id, mapUser(p)]));
 
@@ -42,7 +33,6 @@ export async function listTickets(): Promise<TicketWithRelations[]> {
     return {
       ...ticket,
       requester: clientById.get(ticket.requesterId)!,
-      sector: sectorById.get(ticket.sectorId)!,
       assignee: ticket.assigneeId
         ? userById.get(ticket.assigneeId) ?? null
         : null,
@@ -65,9 +55,8 @@ export async function getTicket(
 
   const ticket = mapTicket(row);
 
-  const [requesterRes, sectorRes, assigneeRes] = await Promise.all([
+  const [requesterRes, assigneeRes] = await Promise.all([
     supabase.from("clients").select("*").eq("id", ticket.requesterId).maybeSingle(),
-    supabase.from("sectors").select("*").eq("id", ticket.sectorId).maybeSingle(),
     ticket.assigneeId
       ? supabase.from("profiles").select("*").eq("id", ticket.assigneeId).maybeSingle()
       : Promise.resolve({ data: null, error: null }),
@@ -76,7 +65,6 @@ export async function getTicket(
   return {
     ...ticket,
     requester: requesterRes.data ? mapClient(requesterRes.data) : ({} as never),
-    sector: sectorRes.data ? mapSector(sectorRes.data) : ({} as never),
     assignee: assigneeRes.data ? mapUser(assigneeRes.data) : null,
   };
 }

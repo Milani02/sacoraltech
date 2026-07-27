@@ -304,7 +304,6 @@ export default async function ChamadoDetailPage({
             <Detail label="Solicitante">
               <span className="font-medium">{ticket.requester.name}</span>
             </Detail>
-            <Detail label="Setor responsável">{ticket.sector.name}</Detail>
             {!isStaff ? (
               <Detail label="Responsável">
                 {ticket.assignee ? (

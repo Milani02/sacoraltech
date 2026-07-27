@@ -32,14 +32,12 @@ export async function createTicket(input: {
   title: string;
   description: string;
   requesterId: string;
-  sectorId: string;
   priority: TicketPriority;
 }): Promise<ActionResult> {
   const title = input.title.trim();
   const description = input.description.trim();
   if (!title) return { ok: false, error: "Informe um título." };
   if (!description) return { ok: false, error: "Descreva o ticket." };
-  if (!input.sectorId) return { ok: false, error: "Selecione o setor." };
   if (!PRIORITIES.includes(input.priority)) {
     return { ok: false, error: "Prioridade inválida." };
   }
@@ -68,7 +66,6 @@ export async function createTicket(input: {
       title,
       description,
       requester_id: requesterId,
-      sector_id: input.sectorId,
       priority: input.priority,
     })
     .select("id")
@@ -84,9 +81,9 @@ export async function createTicket(input: {
 }
 
 /**
- * Abertura de ticket pelo cliente via tópico ("Assunto"). Não escolhe setor:
- * tudo vai para a fila "SAC Geral". Campos extras vão para `details`.
- * Retorna o id do ticket criado (usado para anexar arquivos no cliente).
+ * Abertura de ticket pelo cliente via tópico ("Assunto"). Campos extras vão
+ * para `details`. Retorna o id do ticket criado (usado para anexar arquivos
+ * no cliente).
  */
 export async function createTicketFromTopic(input: {
   topicId: string;
@@ -110,11 +107,8 @@ export async function createTicketFromTopic(input: {
 
   const supabase = await createClient();
 
-  const [{ data: requesterId }, { data: sectorId }] = await Promise.all([
-    supabase.rpc("ensure_my_client"),
-    supabase.rpc("sac_general_sector_id"),
-  ]);
-  if (!requesterId || !sectorId) {
+  const { data: requesterId } = await supabase.rpc("ensure_my_client");
+  if (!requesterId) {
     return { ok: false, error: "Não foi possível preparar o atendimento." };
   }
 
@@ -138,7 +132,6 @@ export async function createTicketFromTopic(input: {
       title,
       description,
       requester_id: requesterId,
-      sector_id: sectorId,
       topic: topic.label,
       details: { fields: detailFields },
     })

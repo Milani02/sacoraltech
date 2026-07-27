@@ -7,7 +7,6 @@ import { PageHeader } from "@/components/layout/page-header";
 import { NovoChamadoForm } from "@/components/tickets/novo-chamado-form";
 import { TicketTopicForm } from "@/components/tickets/ticket-topic-form";
 import { listClients } from "@/features/clients/queries";
-import { listSectors } from "@/features/sectors/queries";
 import { getCurrentUser } from "@/features/auth/current-user";
 
 export const metadata: Metadata = { title: "Novo ticket" };
@@ -15,10 +14,7 @@ export const metadata: Metadata = { title: "Novo ticket" };
 export default async function NovoChamadoPage() {
   const user = await getCurrentUser();
   const isClient = user?.role === "client";
-  const [clients, sectors] = await Promise.all([
-    isClient ? Promise.resolve([]) : listClients(),
-    isClient ? Promise.resolve([]) : listSectors(),
-  ]);
+  const clients = isClient ? [] : await listClients();
 
   return (
     <>
@@ -43,7 +39,7 @@ export default async function NovoChamadoPage() {
       {isClient ? (
         <TicketTopicForm />
       ) : (
-        <NovoChamadoForm clients={clients} sectors={sectors} />
+        <NovoChamadoForm clients={clients} />
       )}
     </>
   );

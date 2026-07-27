@@ -16,20 +16,11 @@ export type TicketStatus =
 
 export type TicketPriority = "low" | "medium" | "high" | "urgent";
 
-export interface Sector {
-  id: string;
-  name: string;
-  description: string | null;
-  isActive: boolean;
-  createdAt: string;
-}
-
 export interface User {
   id: string;
   fullName: string;
   email: string;
   role: UserRole;
-  sectorId: string | null;
   isActive: boolean;
   createdAt: string;
 }
@@ -78,7 +69,6 @@ export interface Ticket {
   title: string;
   description: string;
   requesterId: string;
-  sectorId: string;
   assigneeId: string | null;
   status: TicketStatus;
   priority: TicketPriority;
@@ -96,6 +86,5 @@ export interface Ticket {
 /** A ticket with its related entities resolved, for list/detail views. */
 export interface TicketWithRelations extends Ticket {
   requester: Client;
-  sector: Sector;
   assignee: User | null;
 }

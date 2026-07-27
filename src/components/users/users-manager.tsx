@@ -46,22 +46,18 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { createUser, updateUser } from "@/features/users/actions";
 import { USER_ROLE } from "@/features/auth/roles";
 import { initials } from "@/lib/format";
-import type { Sector, User, UserRole } from "@/types/domain";
+import type { User, UserRole } from "@/types/domain";
 
-const NO_SECTOR = "none";
 const ROLE_ORDER: UserRole[] = ["admin", "agent", "client"];
 
 export function UsersManager({
   users,
-  sectors,
   canManage,
 }: {
   users: User[];
-  sectors: Sector[];
   canManage: boolean;
 }) {
   const router = useRouter();
-  const sectorName = new Map(sectors.map((s) => [s.id, s.name]));
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editing, setEditing] = useState<User | null>(null);
@@ -72,7 +68,6 @@ export function UsersManager({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>("agent");
-  const [sectorId, setSectorId] = useState<string>(NO_SECTOR);
   const [isActive, setIsActive] = useState(true);
 
   function openCreate() {
@@ -80,7 +75,6 @@ export function UsersManager({
     setEmail("");
     setPassword("");
     setRole("agent");
-    setSectorId(NO_SECTOR);
     setCreateOpen(true);
   }
 
@@ -88,7 +82,6 @@ export function UsersManager({
     setEditing(user);
     setFullName(user.fullName);
     setRole(user.role);
-    setSectorId(user.sectorId ?? NO_SECTOR);
     setIsActive(user.isActive);
   }
 
@@ -100,7 +93,6 @@ export function UsersManager({
         email,
         password,
         role,
-        sectorId: sectorId === NO_SECTOR ? null : sectorId,
       });
       if (res.ok) {
         toast.success("Usuário criado");
@@ -119,7 +111,6 @@ export function UsersManager({
       const res = await updateUser(editing.id, {
         fullName,
         role,
-        sectorId: sectorId === NO_SECTOR ? null : sectorId,
         isActive,
       });
       if (res.ok) {
@@ -149,7 +140,6 @@ export function UsersManager({
             <TableRow className="hover:bg-transparent">
               <TableHead>Usuário</TableHead>
               <TableHead className="hidden md:table-cell">Perfil</TableHead>
-              <TableHead className="hidden lg:table-cell">Setor</TableHead>
               <TableHead className="text-right">Status</TableHead>
               {canManage ? <TableHead className="w-12" /> : null}
             </TableRow>
@@ -176,9 +166,6 @@ export function UsersManager({
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   <Badge variant="secondary">{USER_ROLE[user.role].label}</Badge>
-                </TableCell>
-                <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
-                  {user.sectorId ? sectorName.get(user.sectorId) ?? "—" : "—"}
                 </TableCell>
                 <TableCell className="text-right">
                   <Badge variant={user.isActive ? "secondary" : "outline"}>
@@ -249,14 +236,7 @@ export function UsersManager({
                   placeholder="Mínimo 8 caracteres"
                 />
               </Field>
-              <div className="grid gap-6 sm:grid-cols-2">
-                <RoleField value={role} onChange={setRole} />
-                <SectorField
-                  value={sectorId}
-                  onChange={setSectorId}
-                  sectors={sectors}
-                />
-              </div>
+              <RoleField value={role} onChange={setRole} />
             </FieldGroup>
             <DialogFooter>
               <Button
@@ -294,14 +274,7 @@ export function UsersManager({
                   onChange={(e) => setFullName(e.target.value)}
                 />
               </Field>
-              <div className="grid gap-6 sm:grid-cols-2">
-                <RoleField value={role} onChange={setRole} />
-                <SectorField
-                  value={sectorId}
-                  onChange={setSectorId}
-                  sectors={sectors}
-                />
-              </div>
+              <RoleField value={role} onChange={setRole} />
               <Field orientation="horizontal">
                 <Switch
                   id="user-active"
@@ -350,37 +323,6 @@ function RoleField({
             {ROLE_ORDER.map((r) => (
               <SelectItem key={r} value={r}>
                 {USER_ROLE[r].label}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    </Field>
-  );
-}
-
-function SectorField({
-  value,
-  onChange,
-  sectors,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-  sectors: Sector[];
-}) {
-  return (
-    <Field>
-      <FieldLabel>Setor</FieldLabel>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectItem value={NO_SECTOR}>Nenhum</SelectItem>
-            {sectors.map((s) => (
-              <SelectItem key={s.id} value={s.id}>
-                {s.name}
               </SelectItem>
             ))}
           </SelectGroup>

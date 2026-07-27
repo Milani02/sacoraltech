@@ -19,7 +19,6 @@ export async function updateUser(
   input: {
     fullName: string;
     role: UserRole;
-    sectorId: string | null;
     isActive: boolean;
   },
 ): Promise<ActionResult> {
@@ -36,7 +35,6 @@ export async function updateUser(
     .update({
       full_name: input.fullName.trim(),
       role: input.role,
-      sector_id: input.sectorId,
       is_active: input.isActive,
     })
     .eq("id", id);
@@ -51,7 +49,6 @@ export async function createUser(input: {
   email: string;
   password: string;
   role: UserRole;
-  sectorId: string | null;
 }): Promise<ActionResult> {
   // Only admins can create users.
   const me = await getCurrentUser();
@@ -91,13 +88,12 @@ export async function createUser(input: {
     return { ok: false, error: "Não foi possível criar o usuário." };
   }
 
-  // The signup trigger created the profile as 'client'; apply role/sector.
+  // The signup trigger created the profile as 'client'; apply the role.
   const { error: profileError } = await admin
     .from("profiles")
     .update({
       full_name: fullName,
       role: input.role,
-      sector_id: input.sectorId,
     })
     .eq("id", data.user.id);
   if (profileError) {

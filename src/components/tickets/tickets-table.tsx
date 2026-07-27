@@ -124,7 +124,6 @@ export function TicketsTable({
             <TableHead className="w-1 p-0" />
             <SortHead label="Código" column="code" sort={sort} onSort={onSort} className="w-[120px]" />
             <SortHead label="Assunto" />
-            <SortHead label="Setor" className="hidden md:table-cell" />
             <SortHead label="Responsável" className="hidden lg:table-cell" />
             <SortHead label="Status" column="status" sort={sort} onSort={onSort} />
             <SortHead label="Prioridade" column="priority" sort={sort} onSort={onSort} className="hidden sm:table-cell" />
@@ -160,9 +159,6 @@ export function TicketsTable({
                     {ticket.requester.name}
                   </span>
                 </Link>
-              </TableCell>
-              <TableCell className="hidden text-sm text-muted-foreground md:table-cell">
-                {ticket.sector.name}
               </TableCell>
               <TableCell className="hidden lg:table-cell">
                 {ticket.assignee ? (

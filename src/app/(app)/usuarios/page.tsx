@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { UsersManager } from "@/components/users/users-manager";
 import { listUsers } from "@/features/users/queries";
-import { listSectors } from "@/features/sectors/queries";
 import { getCurrentUser } from "@/features/auth/current-user";
 import { can } from "@/features/auth/roles";
 
@@ -15,7 +14,7 @@ export default async function UsuariosPage() {
   const me = await getCurrentUser();
   if (!me || !can.manageUsers(me.role)) redirect("/dashboard");
 
-  const [users, sectors] = await Promise.all([listUsers(), listSectors()]);
+  const users = await listUsers();
 
   const canManage = can.manageUsers(me.role);
 
@@ -25,7 +24,7 @@ export default async function UsuariosPage() {
         title="Usuários"
         description="Equipe com acesso à plataforma."
       />
-      <UsersManager users={users} sectors={sectors} canManage={canManage} />
+      <UsersManager users={users} canManage={canManage} />
     </>
   );
 }

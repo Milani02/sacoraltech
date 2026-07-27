@@ -1,6 +1,6 @@
 -- ============================================================
 -- SAC Oraltech — schema completo (aplicar de uma vez no SQL Editor)
--- Gerado a partir das migrations 0001-0013 (0002_seed.sql fica de fora:
+-- Gerado a partir das migrations 0001-0014 (0002_seed.sql fica de fora:
 -- é dado de exemplo/demo, opcional, roda-se à parte se quiser).
 -- ============================================================
 
@@ -753,4 +753,25 @@ $$;
 
 revoke all on function public.ticket_message_authors(uuid) from public, anon;
 grant execute on function public.ticket_message_authors(uuid) to authenticated;
+
+-- ------------------------------------------------------------
+-- >>> 0014_remove_sectors.sql
+-- ------------------------------------------------------------
+-- ============================================================
+-- SAC Oraltech — remove setores
+--
+-- Não existe divisão por setor/área: todo ticket vai para a mesma fila,
+-- atendida por qualquer atendente (papel "agent"). A tabela `sectors` e a
+-- coluna `sector_id` (em tickets e profiles) ficaram sem uso depois da
+-- 0008 (fila única "SAC Geral") — agora removidas de vez.
+--
+-- Rode no SQL Editor do Supabase. Idempotente.
+-- ============================================================
+
+alter table public.tickets  drop column if exists sector_id;
+alter table public.profiles drop column if exists sector_id;
+
+drop table if exists public.sectors cascade;
+
+drop function if exists public.sac_general_sector_id();
 

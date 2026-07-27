@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { TicketsList } from "@/components/tickets/tickets-list";
 import { listTickets } from "@/features/tickets/queries";
-import { listSectors } from "@/features/sectors/queries";
 import { getCurrentUser } from "@/features/auth/current-user";
 import { can } from "@/features/auth/roles";
 
@@ -17,10 +16,9 @@ export default async function ChamadosPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
-  const [{ q }, tickets, sectors, user] = await Promise.all([
+  const [{ q }, tickets, user] = await Promise.all([
     searchParams,
     listTickets(),
-    listSectors(),
     getCurrentUser(),
   ]);
   const isStaff = !!user && can.respondTickets(user.role);
@@ -41,7 +39,6 @@ export default async function ChamadosPage({
       <TicketsList
         key={`q:${q ?? ""}`}
         tickets={tickets}
-        sectors={sectors}
         initialQuery={q ?? ""}
         // Atendente entra com a fila "Em atendimento"; cliente vê tudo.
         initialStatus={isStaff ? "in_progress" : undefined}

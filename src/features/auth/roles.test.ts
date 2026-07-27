@@ -6,12 +6,10 @@ import type { UserRole } from "@/types/domain";
 const ROLES: UserRole[] = ["admin", "agent", "client"];
 
 describe("can — matriz de autorização", () => {
-  it("apenas admin gerencia usuários e setores", () => {
+  it("apenas admin gerencia usuários", () => {
     expect(can.manageUsers("admin")).toBe(true);
-    expect(can.manageSectors("admin")).toBe(true);
     for (const r of ["agent", "client"] as UserRole[]) {
       expect(can.manageUsers(r)).toBe(false);
-      expect(can.manageSectors(r)).toBe(false);
     }
   });
 

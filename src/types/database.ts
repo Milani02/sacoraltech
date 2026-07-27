@@ -28,7 +28,6 @@ export interface Database {
           full_name: string;
           email: string;
           role: UserRole;
-          sector_id: string | null;
           is_active: boolean;
           created_at: string;
           updated_at: string;
@@ -38,27 +37,9 @@ export interface Database {
           full_name: string;
           email: string;
           role?: UserRole;
-          sector_id?: string | null;
           is_active?: boolean;
         };
         Update: Partial<Database["public"]["Tables"]["profiles"]["Insert"]>;
-        Relationships: [];
-      };
-      sectors: {
-        Row: {
-          id: string;
-          name: string;
-          description: string | null;
-          is_active: boolean;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          description?: string | null;
-          is_active?: boolean;
-        };
-        Update: Partial<Database["public"]["Tables"]["sectors"]["Insert"]>;
         Relationships: [];
       };
       clients: {
@@ -87,7 +68,6 @@ export interface Database {
           title: string;
           description: string;
           requester_id: string;
-          sector_id: string;
           assignee_id: string | null;
           status: TicketStatus;
           priority: TicketPriority;
@@ -104,7 +84,6 @@ export interface Database {
           title: string;
           description: string;
           requester_id: string;
-          sector_id: string;
           assignee_id?: string | null;
           status?: TicketStatus;
           priority?: TicketPriority;
@@ -169,10 +148,6 @@ export interface Database {
     Views: Record<string, never>;
     Functions: {
       ensure_my_client: {
-        Args: Record<string, never>;
-        Returns: string;
-      };
-      sac_general_sector_id: {
         Args: Record<string, never>;
         Returns: string;
       };

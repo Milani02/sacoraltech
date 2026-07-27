@@ -32,7 +32,7 @@ import {
   TICKET_STATUS,
   TICKET_STATUS_ORDER,
 } from "@/features/tickets/constants";
-import type { Sector, TicketWithRelations } from "@/types/domain";
+import type { TicketWithRelations } from "@/types/domain";
 
 const ALL = "all";
 const PAGE_SIZE = 10;
@@ -67,13 +67,11 @@ function compare(
 
 export function TicketsList({
   tickets,
-  sectors,
   initialQuery = "",
   initialStatus = ALL,
   canExport = false,
 }: {
   tickets: TicketWithRelations[];
-  sectors: Sector[];
   initialQuery?: string;
   /** Status pré-selecionado ao abrir a lista (ex.: staff entra em "Em atendimento"). */
   initialStatus?: string;
@@ -82,7 +80,6 @@ export function TicketsList({
   const [query, setQuery] = useState(initialQuery);
   const [status, setStatus] = useState<string>(initialStatus);
   const [priority, setPriority] = useState<string>(ALL);
-  const [sector, setSector] = useState<string>(ALL);
   const [category, setCategory] = useState<string>(ALL);
   // Período de abertura (yyyy-mm-dd), como na exportação XLS.
   const [fromDate, setFromDate] = useState("");
@@ -95,7 +92,6 @@ export function TicketsList({
     return tickets.filter((t) => {
       if (status !== ALL && t.status !== status) return false;
       if (priority !== ALL && t.priority !== priority) return false;
-      if (sector !== ALL && t.sectorId !== sector) return false;
       if (category !== ALL && t.category !== category) return false;
       const day = t.createdAt.slice(0, 10); // yyyy-mm-dd
       if (fromDate && day < fromDate) return false;
@@ -106,7 +102,7 @@ export function TicketsList({
       }
       return true;
     });
-  }, [tickets, query, status, priority, sector, category, fromDate, toDate]);
+  }, [tickets, query, status, priority, category, fromDate, toDate]);
 
   const sorted = useMemo(() => {
     const mult = sort.dir === "asc" ? 1 : -1;
@@ -124,7 +120,6 @@ export function TicketsList({
     query !== "" ||
     status !== ALL ||
     priority !== ALL ||
-    sector !== ALL ||
     category !== ALL ||
     fromDate !== "" ||
     toDate !== "";
@@ -140,10 +135,6 @@ export function TicketsList({
   }
   function setPriorityReset(v: string) {
     setPriority(v);
-    setPage(1);
-  }
-  function setSectorReset(v: string) {
-    setSector(v);
     setPage(1);
   }
   function setCategoryReset(v: string) {
@@ -163,7 +154,6 @@ export function TicketsList({
     setQuery("");
     setStatus(ALL);
     setPriority(ALL);
-    setSector(ALL);
     setCategory(ALL);
     setFromDate("");
     setToDate("");
@@ -240,24 +230,6 @@ export function TicketsList({
                   {TICKET_CATEGORIES.map((c) => (
                     <SelectItem key={c} value={c}>
                       {TICKET_CATEGORY_LABELS[c]}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          ) : null}
-
-          {sectors.length > 1 ? (
-            <Select value={sector} onValueChange={setSectorReset}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Setor" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value={ALL}>Todos os setores</SelectItem>
-                  {sectors.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
-                      {s.name}
                     </SelectItem>
                   ))}
                 </SelectGroup>

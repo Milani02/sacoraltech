@@ -30,15 +30,13 @@ import {
   TICKET_PRIORITY_ORDER,
 } from "@/features/tickets/constants";
 import { createTicket } from "@/features/tickets/actions";
-import type { Client, Sector, TicketPriority } from "@/types/domain";
+import type { Client, TicketPriority } from "@/types/domain";
 
 export function NovoChamadoForm({
   clients,
-  sectors,
   isClient = false,
 }: {
   clients: Client[];
-  sectors: Sector[];
   isClient?: boolean;
 }) {
   const router = useRouter();
@@ -46,9 +44,6 @@ export function NovoChamadoForm({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [requester, setRequester] = useState("");
-  // Com apenas um setor (SAC Geral), já vem selecionado e o campo é ocultado.
-  const singleSector = sectors.length === 1;
-  const [sector, setSector] = useState(singleSector ? sectors[0].id : "");
   const [priority, setPriority] = useState<TicketPriority>("medium");
   const [submitted, setSubmitted] = useState(false);
 
@@ -56,7 +51,6 @@ export function NovoChamadoForm({
     title: !title.trim() ? "Informe um título." : null,
     description: !description.trim() ? "Descreva o ticket." : null,
     requester: !isClient && !requester ? "Selecione o solicitante." : null,
-    sector: !sector ? "Selecione o setor." : null,
   };
   const isValid = Object.values(errors).every((e) => e === null);
 
@@ -69,7 +63,6 @@ export function NovoChamadoForm({
         title,
         description,
         requesterId: requester,
-        sectorId: sector,
         priority,
       });
       if (res.ok && res.id) {
@@ -115,61 +108,28 @@ export function NovoChamadoForm({
               ) : null}
             </Field>
 
-            <div
-              className={
-                !isClient && !singleSector
-                  ? "grid gap-6 sm:grid-cols-2"
-                  : "grid gap-6"
-              }
-            >
-              {!isClient ? (
-                <Field data-invalid={submitted && !!errors.requester}>
-                  <FieldLabel>Solicitante</FieldLabel>
-                  <Select value={requester} onValueChange={setRequester}>
-                    <SelectTrigger
-                      aria-invalid={submitted && !!errors.requester}
-                    >
-                      <SelectValue placeholder="Selecione o cliente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {clients.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  {submitted && errors.requester ? (
-                    <FieldError>{errors.requester}</FieldError>
-                  ) : null}
-                </Field>
-              ) : null}
-
-              {!singleSector ? (
-                <Field data-invalid={submitted && !!errors.sector}>
-                  <FieldLabel>Setor responsável</FieldLabel>
-                  <Select value={sector} onValueChange={setSector}>
-                    <SelectTrigger aria-invalid={submitted && !!errors.sector}>
-                      <SelectValue placeholder="Selecione o setor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {sectors.map((s) => (
-                          <SelectItem key={s.id} value={s.id}>
-                            {s.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  {submitted && errors.sector ? (
-                    <FieldError>{errors.sector}</FieldError>
-                  ) : null}
-                </Field>
-              ) : null}
-            </div>
+            {!isClient ? (
+              <Field data-invalid={submitted && !!errors.requester}>
+                <FieldLabel>Solicitante</FieldLabel>
+                <Select value={requester} onValueChange={setRequester}>
+                  <SelectTrigger aria-invalid={submitted && !!errors.requester}>
+                    <SelectValue placeholder="Selecione o cliente" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {clients.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+                {submitted && errors.requester ? (
+                  <FieldError>{errors.requester}</FieldError>
+                ) : null}
+              </Field>
+            ) : null}
 
             <Field>
               <FieldLabel>Prioridade</FieldLabel>

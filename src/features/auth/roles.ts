@@ -26,7 +26,6 @@ export const USER_ROLE: Record<UserRole, RoleMeta> = {
  */
 export const can = {
   manageUsers: (role: UserRole) => role === "admin",
-  manageSectors: (role: UserRole) => role === "admin",
   manageClients: (role: UserRole) => role === "admin" || role === "agent",
   respondTickets: (role: UserRole) => role === "admin" || role === "agent",
   seeInternalNotes: (role: UserRole) => role === "admin" || role === "agent",
