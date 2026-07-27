@@ -1,6 +1,6 @@
 -- ============================================================
 -- SAC Oraltech — schema completo (aplicar de uma vez no SQL Editor)
--- Gerado a partir das migrations 0001-0016 (0002_seed.sql fica de fora:
+-- Gerado a partir das migrations 0001-0017 (0002_seed.sql fica de fora:
 -- é dado de exemplo/demo, opcional, roda-se à parte se quiser).
 -- ============================================================
 
@@ -875,4 +875,48 @@ revoke all on function public.ticket_assignee_name(uuid) from public, anon;
 revoke all on function public.ticket_assignee_names() from public, anon;
 grant execute on function public.ticket_assignee_name(uuid) to authenticated;
 grant execute on function public.ticket_assignee_names() to authenticated;
+
+-- ------------------------------------------------------------
+-- >>> 0017_fix_role_escalation_bootstrap.sql
+-- ------------------------------------------------------------
+-- ============================================================
+-- SAC Oraltech — corrige bootstrap do primeiro admin, bloqueado pela 0015
+--
+-- BUG introduzido pela 0015: a trigger de prevent_role_escalation checa
+-- is_admin(), que depende de auth.uid() — só preenchido quando a chamada
+-- passa pelo PostgREST com um JWT de usuário logado (role
+-- "authenticated"). Chamadas com a service_role key (o jeito documentado
+-- de promover o primeiro admin, inclusive no seed 0002_seed.sql) e
+-- comandos rodados direto no SQL Editor caem no mesmo "sem admin logado"
+-- e ficavam bloqueados — mesmo vindo de quem já tem acesso de servidor/
+-- operador do projeto (fora do alcance de um usuário comum do app).
+--
+-- Fix: só aplica a trava quando a chamada vem de uma sessão de usuário
+-- comum (auth.role() = 'authenticated'). Isso mantém bloqueado o ataque
+-- original (usuário client/agent tentando se autopromover via PATCH
+-- direto com o próprio token) e libera o bootstrap via service_role ou
+-- SQL Editor. Também não afeta admin editando outro usuário pela tela
+-- Usuários: nesse caso is_admin() já é true e a checagem nem entra.
+--
+-- Rode no SQL Editor do Supabase. Idempotente.
+-- ============================================================
+
+create or replace function public.prevent_role_escalation()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.role() = 'authenticated' and not public.is_admin() then
+    if new.role is distinct from old.role then
+      raise exception 'Apenas administradores podem alterar o papel do usuário.';
+    end if;
+    if new.is_active is distinct from old.is_active then
+      raise exception 'Apenas administradores podem ativar/desativar usuários.';
+    end if;
+  end if;
+  return new;
+end;
+$$;
 
