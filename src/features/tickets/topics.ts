@@ -62,7 +62,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "pedido",
-    label: "Problemas com pedido",
+    label: "Pedido (informações, acompanhamento ou problemas)",
     description:
       "Divergência de quantidade de produtos com o pedido ou NF, cancelamento do pedido, etc.",
     fields: [razao, cnpj, endereco, nf, produto],
@@ -71,7 +71,7 @@ export const TOPICS: Topic[] = [
   },
   {
     id: "transportadora",
-    label: "Problemas com transportadora",
+    label: "Entrega e transportadora",
     description: "Produtos trocados, avarias, atraso na entrega, roubo, etc.",
     fields: [razao, cnpj, transportadora, nf],
     files: [fotosVideos],

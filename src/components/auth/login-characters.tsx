@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
  * Painel de personagens animados.
  * - Flutuam suavemente e piscam de tempos em tempos.
  * - As pupilas seguem o mouse.
- * - Ao digitar o e-mail, o personagem verde se inclina para o formulário (espia)
+ * - Ao digitar o e-mail, o personagem laranja se inclina para o formulário (espia)
  *   e todos olham para o campo.
  * - Enquanto a senha está escondida, ficam de olhos abertos tentando ver.
  * - Quando a senha é revelada, fecham os olhos.
@@ -124,21 +124,21 @@ export function LoginCharacters({
   }
   const { lr, ud } = look;
 
-  // Verde espia: sobe um pouco e inclina para o formulário (direita).
-  const greenPeek = peeking
+  // Laranja espia: sobe um pouco e inclina para o formulário (direita).
+  const orangePeek = peeking
     ? "translateY(-12px) rotate(13deg)"
     : "translateY(0) rotate(0deg)";
 
   return (
     <div ref={ref} className="relative h-72 w-full max-w-md" aria-hidden>
-      {/* personagem verde (alto) */}
+      {/* personagem laranja (alto) */}
       <div
         className="char-bob absolute left-[18%] bottom-0 h-60 w-32"
         style={{ animationDelay: "0s" }}
       >
         <div
           className="size-full rounded-t-[3.5rem] transition-transform duration-500 ease-out"
-          style={{ background: "var(--char-green)", transform: greenPeek, transformOrigin: "bottom center" }}
+          style={{ background: "var(--char-orange)", transform: orangePeek, transformOrigin: "bottom center" }}
         >
           <div className="absolute left-1/2 top-9 -translate-x-1/2">
             <Eyes lr={lr} ud={ud} closed={closed} />
@@ -146,14 +146,14 @@ export function LoginCharacters({
         </div>
       </div>
 
-      {/* personagem carvão (estreito) */}
+      {/* personagem verde (estreito) */}
       <div
         className="char-bob absolute left-[42%] bottom-0 h-48 w-24"
         style={{ animationDelay: "0.8s" }}
       >
         <div
           className="size-full rounded-t-[3rem]"
-          style={{ background: "var(--char-dark)" }}
+          style={{ background: "var(--char-green)" }}
         >
           <div className="absolute left-1/2 top-8 -translate-x-1/2">
             <Eyes lr={lr} ud={ud} closed={closed} size={13} gap={12} pupil={6} />
@@ -161,14 +161,14 @@ export function LoginCharacters({
         </div>
       </div>
 
-      {/* personagem laranja (domo grande) */}
+      {/* personagem azul (domo grande) */}
       <div
         className="char-bob absolute left-0 bottom-0 h-44 w-52"
         style={{ animationDelay: "1.4s" }}
       >
         <div
           className="size-full rounded-t-full"
-          style={{ background: "var(--char-orange)" }}
+          style={{ background: "var(--char-blue)" }}
         >
           <div className="absolute left-1/2 top-16 -translate-x-1/2">
             <Eyes lr={lr} ud={ud} closed={closed} size={14} gap={28} pupil={6} />

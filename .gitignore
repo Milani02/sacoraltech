@@ -46,5 +46,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# python cache (docs/_tools scripts)
+__pycache__/
+*.pyc
+
 # logo original na raiz (copias derivadas versionadas ficam em public/)
 /logo/
