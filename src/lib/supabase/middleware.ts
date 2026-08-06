@@ -47,6 +47,15 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
+  // O template de e-mail "Reset Password" do Supabase está configurado com um
+  // link fixo para /login?code=... em vez de {{ .ConfirmationURL }}. Encaminha
+  // esse código para a tela de nova senha, preservando os parâmetros.
+  if (pathname === "/login" && request.nextUrl.searchParams.has("code")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/atualizar-senha";
+    return NextResponse.redirect(url);
+  }
+
   // Unauthenticated user trying to reach a protected route → /login
   if (!user && !isPublic(pathname)) {
     const url = request.nextUrl.clone();

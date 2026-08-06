@@ -23,6 +23,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { BrandLogo } from "@/components/layout/brand-logo";
+import { LoginCharacters } from "@/components/auth/login-characters";
 import { createClient } from "@/lib/supabase/client";
 
 type Status = "checking" | "ready" | "invalid";
@@ -34,6 +35,8 @@ function AtualizarSenha() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [show, setShow] = useState(false);
+  const [passwordFocused, setPasswordFocused] = useState(false);
+  const [confirmFocused, setConfirmFocused] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -97,89 +100,122 @@ function AtualizarSenha() {
   }
 
   return (
-    <div className="dark flex min-h-svh items-center justify-center bg-background p-6 text-foreground">
-      <div className="w-full max-w-sm">
-        <div className="mb-8 flex justify-center">
-          <BrandLogo onDark />
+    <div className="grid min-h-svh lg:grid-cols-2">
+      {/* Painel claro com personagens */}
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-b from-secondary to-muted p-10 lg:flex">
+        <BrandLogo />
+
+        <div className="flex flex-1 items-center justify-center">
+          <LoginCharacters
+            emailFocused={confirmFocused}
+            passwordFocused={passwordFocused}
+            revealPassword={show}
+          />
         </div>
 
-        <div className="mb-8 grid gap-1.5 text-center">
-          <h1 className="text-2xl font-bold tracking-tight">Redefinir senha</h1>
-          <p className="text-sm text-muted-foreground">
-            Escolha uma nova senha para sua conta.
-          </p>
+        <div className="flex gap-5 text-xs text-muted-foreground">
+          <span>Central de atendimento</span>
+          <span>© {new Date().getFullYear()} Oraltech</span>
         </div>
+      </div>
 
-        {status === "checking" ? (
-          <div className="flex justify-center py-8">
-            <Spinner />
+      {/* Painel escuro com o formulário */}
+      <div className="dark flex items-center justify-center bg-background p-6 text-foreground sm:p-10">
+        <div className="w-full max-w-sm">
+          <div className="mb-8 flex justify-center lg:hidden">
+            <BrandLogo onDark />
           </div>
-        ) : status === "invalid" ? (
-          <div className="grid gap-4">
-            <Alert variant="destructive">
-              <AlertTitle>Link inválido ou expirado</AlertTitle>
-              <AlertDescription>
-                Solicite um novo link de redefinição na tela de login.
-              </AlertDescription>
-            </Alert>
-            <Button asChild variant="outline">
-              <Link href="/login">Voltar ao login</Link>
-            </Button>
+
+          <div className="mb-8 grid gap-1.5 text-center">
+            <h1 className="text-3xl font-bold tracking-tight">
+              Redefinir senha
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              Escolha uma nova senha para acessar a central.
+            </p>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <FieldGroup>
-              {error ? (
-                <Alert variant="destructive">
-                  <AlertTitle>Não foi possível redefinir</AlertTitle>
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              ) : null}
-              <Field data-invalid={!!error}>
-                <FieldLabel htmlFor="new-password">Nova senha</FieldLabel>
-                <InputGroup>
-                  <InputGroupInput
-                    id="new-password"
+
+          {status === "checking" ? (
+            <div className="flex justify-center py-8">
+              <Spinner />
+            </div>
+          ) : status === "invalid" ? (
+            <div className="grid gap-4">
+              <Alert variant="destructive">
+                <AlertTitle>Link inválido ou expirado</AlertTitle>
+                <AlertDescription>
+                  Solicite um novo link de redefinição na tela de login.
+                </AlertDescription>
+              </Alert>
+              <Button asChild variant="outline">
+                <Link href="/login">Voltar ao login</Link>
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <FieldGroup>
+                {error ? (
+                  <Alert variant="destructive">
+                    <AlertTitle>Não foi possível redefinir</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                ) : null}
+                <Field data-invalid={!!error}>
+                  <FieldLabel htmlFor="new-password">Nova senha</FieldLabel>
+                  <InputGroup>
+                    <InputGroupInput
+                      id="new-password"
+                      type={show ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onFocus={() => {
+                        setPasswordFocused(true);
+                        setConfirmFocused(false);
+                      }}
+                      onBlur={() => setPasswordFocused(false)}
+                      placeholder="Mínimo 8 caracteres"
+                      autoComplete="new-password"
+                      required
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <InputGroupButton
+                        type="button"
+                        variant="ghost"
+                        onClick={() => setShow((s) => !s)}
+                        aria-label={show ? "Ocultar senha" : "Mostrar senha"}
+                      >
+                        {show ? <EyeOff /> : <Eye />}
+                      </InputGroupButton>
+                    </InputGroupAddon>
+                  </InputGroup>
+                </Field>
+                <Field data-invalid={!!error}>
+                  <FieldLabel htmlFor="confirm-password">
+                    Confirmar senha
+                  </FieldLabel>
+                  <Input
+                    id="confirm-password"
                     type={show ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Mínimo 8 caracteres"
+                    value={confirm}
+                    onChange={(e) => setConfirm(e.target.value)}
+                    onFocus={() => {
+                      setConfirmFocused(true);
+                      setPasswordFocused(false);
+                    }}
+                    onBlur={() => setConfirmFocused(false)}
                     autoComplete="new-password"
                     required
                   />
-                  <InputGroupAddon align="inline-end">
-                    <InputGroupButton
-                      type="button"
-                      variant="ghost"
-                      onClick={() => setShow((s) => !s)}
-                      aria-label={show ? "Ocultar senha" : "Mostrar senha"}
-                    >
-                      {show ? <EyeOff /> : <Eye />}
-                    </InputGroupButton>
-                  </InputGroupAddon>
-                </InputGroup>
-              </Field>
-              <Field data-invalid={!!error}>
-                <FieldLabel htmlFor="confirm-password">
-                  Confirmar senha
-                </FieldLabel>
-                <Input
-                  id="confirm-password"
-                  type={show ? "text" : "password"}
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  autoComplete="new-password"
-                  required
-                />
-                {error ? <FieldError>{error}</FieldError> : null}
-              </Field>
-              <Button type="submit" className="w-full" disabled={saving}>
-                {saving ? <Spinner data-icon="inline-start" /> : null}
-                Redefinir senha
-              </Button>
-            </FieldGroup>
-          </form>
-        )}
+                  {error ? <FieldError>{error}</FieldError> : null}
+                </Field>
+                <Button type="submit" className="w-full" disabled={saving}>
+                  {saving ? <Spinner data-icon="inline-start" /> : null}
+                  Redefinir senha
+                </Button>
+              </FieldGroup>
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );
