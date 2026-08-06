@@ -33,12 +33,17 @@ export function ClientDashboard({
         title={`Olá, ${firstName}`}
         description="Visualize seus tickets"
         actions={
-          <Button asChild>
-            <Link href="/chamados/novo">
-              <Plus data-icon="inline-start" />
-              Abrir ticket
-            </Link>
-          </Button>
+          <div className="flex flex-col items-start gap-1 sm:items-end">
+            <Button asChild>
+              <Link href="/chamados/novo">
+                <Plus data-icon="inline-start" />
+                Abrir ticket
+              </Link>
+            </Button>
+            <span className="text-xs text-muted-foreground">
+              Prazo de resposta: 4 dias úteis
+            </span>
+          </div>
         }
       />
 
